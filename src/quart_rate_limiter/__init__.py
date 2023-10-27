@@ -256,6 +256,10 @@ class RateLimiter:
         app.after_serving(self._after_serving)
         app.config.setdefault("QUART_RATE_LIMITER_ENABLED", enabled)
 
+    async def check(self, endpoint: str, rate_limits: List[RateLimit]) -> None:
+        await self._raise_on_rejection(endpoint, rate_limits)
+        await self._update_limits(endpoint, rate_limits)
+
     async def _before_serving(self) -> None:
         await self.store.before_serving()
 

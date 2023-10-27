@@ -98,3 +98,11 @@ async def test_blueprint_rate_limits(app_blueprint_limit: Quart, fixed_datetime:
     response = await test_client.get("/")
     assert response.status_code == 429
     assert response.headers["Retry-After"] == "2"
+
+
+async def test_explicit_rate_limits(app: Quart) -> None:
+    test_client = app.test_client()
+    response = await test_client.get("/explicit_rate_limit/")
+    assert response.status_code == 200
+    response = await test_client.get("/explicit_rate_limit/")
+    assert response.status_code == 429

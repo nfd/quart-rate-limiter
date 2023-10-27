@@ -71,6 +71,18 @@ and then to exempt a route,
     async def handler():
         ...
 
+You may also explicitly invoke the rate limiter from your view function,
+instead of using a decorator. This is useful if you wish to rate only
+some of the control flows.
+
+.. code-block:: python
+
+    limits = [RateLimit(1, timedelta(seconds=10))]
+
+    @app.route("/")
+    async def handler():
+        await rate_limiter.check('handler', limits)
+        ...
 
 To alter the identification of remote users you can either supply a
 global key function when initialising the extension, or on a per route

@@ -38,6 +38,13 @@ async def _app(pytestconfig: Config) -> AsyncGenerator[Quart, None]:
     async def index() -> ResponseReturnValue:
         return ""
 
+    explicit_rate_limits = [quart_rate_limiter.RateLimit(1, timedelta(seconds=10))]
+
+    @app.route("/explicit_rate_limit/")
+    async def explicit_rate_limit() -> ResponseReturnValue:
+        await app.rate_limiter.check("explicit_rate_limit", explicit_rate_limits)
+        return ""
+
     store: RateLimiterStoreABC
     redis_host = pytestconfig.getoption("redis_host")
     if redis_host is None:
@@ -45,6 +52,6 @@ async def _app(pytestconfig: Config) -> AsyncGenerator[Quart, None]:
     else:
         store = RedisStore(f"redis://{redis_host}")
 
-    RateLimiter(app, store=store)
+    app.rate_limiter = RateLimiter(app, store=store)
     async with app.test_app():
         yield app
